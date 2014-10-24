@@ -54,8 +54,8 @@ void GLWindow::initializeGL()
   shader->attachShader("PhongVertex",ngl::VERTEX);
   shader->attachShader("PhongFragment",ngl::FRAGMENT);
   // attach the source
-  shader->loadShaderSource("PhongVertex","shaders/Phong.vs");
-  shader->loadShaderSource("PhongFragment","shaders/Phong.fs");
+  shader->loadShaderSource("PhongVertex","shaders/PhongVertex.glsl");
+  shader->loadShaderSource("PhongFragment","shaders/PhongFragment.glsl");
   // compile the shaders
   shader->compileShader("PhongVertex");
   shader->compileShader("PhongFragment");
@@ -99,7 +99,7 @@ void GLWindow::initializeGL()
   prim->createSphere("sphere",1.0,40);
   m_text = new  ngl::Text(QFont("Arial",18));
   m_text->setScreenSize(this->size().width(),this->size().height());
-
+  m_text->setColour(1.0,1.0,0.0);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
