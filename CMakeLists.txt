@@ -28,13 +28,17 @@ set(CMAKE_AUTOMOC ON)
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # see what platform we are on and set platform defines
+# see what platform we are on and set platform defines
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	add_definitions(-DDARWIN)
+	find_library(MACGL OpenGL)
+	set ( PROJECT_LINK_LIBS -lNGL ${MACGL})
 
-elif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	add_definitions(-DLINUX)
-endif()
+	set ( PROJECT_LINK_LIBS -lNGL -lGL)
 
+endif()
 
 #As were using Qt we need to run moc
 #disable -rdynamic
@@ -46,7 +50,6 @@ add_definitions(-O2 -D_FILE_OFFSET_BITS=64 -fPIC)
 
 
 # now add NGL specific values
-set ( PROJECT_LINK_LIBS -lNGL -lGL)
 link_directories( ~/NGL/lib )
 include_directories(~/NGL/include/)
 # as NGL uses Qt we need to define this flag
