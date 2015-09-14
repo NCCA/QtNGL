@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 # Name of the project
-project(QtNGL)
+set(PROJECT_NAME QtNGL)
+project(${PROJECT_NAME})
+
 #Bring the headers into the project (local ones)
 include_directories(include $ENV{HOME}/NGL/include ui)
 
@@ -57,6 +59,6 @@ add_definitions(-DQT5BUILD)
 
 
 # add exe and link libs this must be after the other defines
-add_executable(QtNGL ${SOURCES} ${UIS_HDRS})
-target_link_libraries(QtNGL ${PROJECT_LINK_LIBS} Qt5::OpenGL Qt5::Core Qt5::Gui Qt5::Widgets )
+add_executable(${PROJECT_NAME} ${SOURCES} ${UIS_HDRS})
+target_link_libraries(${PROJECT_NAME} ${PROJECT_LINK_LIBS} Qt5::OpenGL Qt5::Core Qt5::Gui Qt5::Widgets )
 
