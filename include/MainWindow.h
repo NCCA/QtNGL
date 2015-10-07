@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "GLWindow.h"
+#include "NGLScene.h"
 
 namespace Ui {
     class MainWindow;
@@ -19,7 +19,7 @@ public:
 private:
     Ui::MainWindow *m_ui;
 		/// @brief our openGL widget
-		GLWindow *m_gl;
+		NGLScene *m_gl;
 };
 
 #endif // MAINWINDOW_H
