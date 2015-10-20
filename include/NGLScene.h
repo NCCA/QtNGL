@@ -1,5 +1,5 @@
-#ifndef GL_WINDOW_H__
-#define GL_WINDOW_H__
+#ifndef NGLSCENE_H__
+#define NGLSCENE_H__
 
 #include <ngl/Camera.h>
 #include <ngl/Transformation.h>
@@ -9,7 +9,7 @@
 #include <QResizeEvent>
 #include <QOpenGLWidget>
 
-/// @file GLWindow.h
+/// @file NGLScene.h
 /// @brief a basic Qt GL window class for ngl demos
 /// @author Jonathan Macey
 /// @version 1.0
