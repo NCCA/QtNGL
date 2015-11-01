@@ -84,7 +84,7 @@ private :
 	//----------------------------------------------------------------------------------------------------------------------
 	// text for rendering
 	//----------------------------------------------------------------------------------------------------------------------
-	ngl::Text *m_text;
+	std::unique_ptr<ngl::Text> m_text;
 
 protected:
 
@@ -95,13 +95,13 @@ protected:
   /// @brief this is called whenever the window is re-sized
   /// @param[in] _w the width of the resized window
   /// @param[in] _h the height of the resized window
-  void resizeGL(const int _w, const int _h );
+  void resizeGL(QResizeEvent *_event);
   /// @brief this is the main gl drawing routine which is called whenever the window needs to
   // be re-drawn
   void paintGL();
 
 	/// @brief our camera
-	ngl::Camera *m_camera;
+	ngl::Camera m_cam;
 	/// @brief our transform for objects
 	ngl::Transformation m_transform;
 private :
@@ -120,7 +120,14 @@ private :
   /// @param _event the Qt Event structure
   void mouseReleaseEvent (QMouseEvent *_event );
   void loadMatricesToShader( );
-
+  //----------------------------------------------------------------------------------------------------------------------
+  /// @brief window width
+  //----------------------------------------------------------------------------------------------------------------------
+  int m_width;
+  //----------------------------------------------------------------------------------------------------------------------
+  /// @brief window height
+  //----------------------------------------------------------------------------------------------------------------------
+  int m_height;
 
 };
 

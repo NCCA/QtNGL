@@ -23,7 +23,6 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_position=0.0;
 
 	m_selectedObject=0;
-
 }
 
 // This virtual function is called once before the first call to paintGL() or resizeGL(),
@@ -43,8 +42,8 @@ void NGLScene::initializeGL()
   ngl::Vec3 look(0,0,0);
   ngl::Vec3 up(0,1,0);
 
-  m_camera = new ngl::Camera(eye,look,up);
-  m_camera->setShape(45,float(1024/720),0.1,300);
+  m_cam.set(eye,look,up);
+  m_cam.setShape(45,float(1024/720),0.1,300);
   // now to load the shader and set the values
   // grab an instance of shader manager
   ngl::ShaderLib *shader=ngl::ShaderLib::instance();
@@ -75,7 +74,7 @@ void NGLScene::initializeGL()
   // and make it active ready to load values
   (*shader)["Phong"]->use();
   shader->setShaderParam1i("Normalize",1);
-  shader->setShaderParam3f("viewerPos",m_camera->getEye().m_x,m_camera->getEye().m_y,m_camera->getEye().m_z);
+  shader->setShaderParam3f("viewerPos",m_cam.getEye().m_x,m_cam.getEye().m_y,m_cam.getEye().m_z);
   // now pass the modelView and projection values to the shader
   // the shader will use the currently active material and light0 so set them
   ngl::Material m(ngl::STDMAT::POLISHEDSILVER);
@@ -87,7 +86,7 @@ void NGLScene::initializeGL()
   // now create our light this is done after the camera so we can pass the
   // transpose of the projection matrix to the light to do correct eye space
   // transformations
-  ngl::Mat4 iv=m_camera->getViewMatrix();
+  ngl::Mat4 iv=m_cam.getViewMatrix();
   iv.transpose();
   light.setTransform(iv);
   light.setAttenuation(1,0,0);
@@ -97,19 +96,21 @@ void NGLScene::initializeGL()
 
   ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
   prim->createSphere("sphere",1.0,40);
-  m_text = new  ngl::Text(QFont("Arial",18));
+  m_text.reset(  new  ngl::Text(QFont("Arial",18)));
   m_text->setScreenSize(this->size().width(),this->size().height());
   m_text->setColour(1.0,1.0,0.0);
+  update();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 //This virtual function is called whenever the widget has been resized.
 // The new size is passed in width and height.
-void NGLScene::resizeGL( int _w, int _h )
+void NGLScene::resizeGL(QResizeEvent *_event )
 {
-  glViewport(0,0,_w,_h);
-  m_camera->setShape(45,float(_w/_h),0.1,300);
-  m_text->setScreenSize(_w,_h);
+  m_width=_event->size().width()*devicePixelRatio();
+  m_height=_event->size().height()*devicePixelRatio();
+  // now set the camera size values as the screen size has changed
+  m_cam.setShape(45.0f,(float)width()/height(),0.05f,350.0f);
 
 }
 
@@ -124,8 +125,8 @@ void NGLScene::loadMatricesToShader()
   ngl::Mat3 normalMatrix;
   ngl::Mat4 M;
   M=m_transform.getMatrix();
-  MV=m_transform.getMatrix()*m_camera->getViewMatrix();
-  MVP=MV*m_camera->getProjectionMatrix() ;
+  MV=m_transform.getMatrix()*m_cam.getViewMatrix();
+  MVP=MV*m_cam.getProjectionMatrix() ;
   normalMatrix=MV;
   normalMatrix.inverse();
   shader->setShaderParamFromMat4("MV",MV);
@@ -140,15 +141,16 @@ void NGLScene::loadMatricesToShader()
 void NGLScene::paintGL()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glViewport(0,0,m_width,m_height);
   ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
-	if(m_wireframe == true)
-	{
-		glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-	}
-	else
-	{
-		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-	}
+  if(m_wireframe == true)
+  {
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+  }
+  else
+  {
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+  }
   ngl::ShaderLib *shader=ngl::ShaderLib::instance();
   (*shader)["Phong"]->use();
 
