@@ -8,6 +8,8 @@
 #include <QEvent>
 #include <QResizeEvent>
 #include <QOpenGLWidget>
+#include <memory>
+
 
 /// @file NGLScene.h
 /// @brief a basic Qt GL window class for ngl demos
