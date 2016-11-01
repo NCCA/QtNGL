@@ -105,10 +105,10 @@ void NGLScene::initializeGL()
 //----------------------------------------------------------------------------------------------------------------------
 //This virtual function is called whenever the widget has been resized.
 // The new size is passed in width and height.
-void NGLScene::resizeGL(QResizeEvent *_event )
+void NGLScene::resizeGL(int _w , int _h)
 {
-  m_width=_event->size().width()*devicePixelRatio();
-  m_height=_event->size().height()*devicePixelRatio();
+  m_width=_w*devicePixelRatio();
+  m_height=_h*devicePixelRatio();
   // now set the camera size values as the screen size has changed
   m_cam.setShape(45.0f,(float)width()/height(),0.05f,350.0f);
 
