@@ -1,10 +1,11 @@
-#ifndef NGLSCENE_H__
-#define NGLSCENE_H__
+#ifndef NGLSCENE_H_
+#define NGLSCENE_H_
 
 #include <ngl/Camera.h>
 #include <ngl/Transformation.h>
 #include <ngl/Vec3.h>
 #include <ngl/Text.h>
+#include "WindowParams.h"
 #include <QEvent>
 #include <QResizeEvent>
 #include <QOpenGLWidget>
@@ -89,7 +90,10 @@ private :
 	std::unique_ptr<ngl::Text> m_text;
 
 protected:
-
+  //----------------------------------------------------------------------------------------------------------------------
+  /// @brief the windows params such as mouse and rotations etc
+  //----------------------------------------------------------------------------------------------------------------------
+  WinParams m_win;
   /// @brief  The following methods must be implimented in the sub class
   /// this is called when the window is created
   void initializeGL();
@@ -102,7 +106,9 @@ protected:
   // be re-drawn
   void paintGL();
 
-	/// @brief our camera
+  /// @brief our model position
+  ngl::Vec3 m_modelPos;
+  /// @brief our camera
 	ngl::Camera m_cam;
 	/// @brief our transform for objects
 	ngl::Transformation m_transform;
@@ -121,15 +127,9 @@ private :
   /// inherited from QObject and overridden here.
   /// @param _event the Qt Event structure
   void mouseReleaseEvent (QMouseEvent *_event );
+  void wheelEvent( QWheelEvent* _event );
+
   void loadMatricesToShader( );
-  //----------------------------------------------------------------------------------------------------------------------
-  /// @brief window width
-  //----------------------------------------------------------------------------------------------------------------------
-  int m_width;
-  //----------------------------------------------------------------------------------------------------------------------
-  /// @brief window height
-  //----------------------------------------------------------------------------------------------------------------------
-  int m_height;
 
 };
 
