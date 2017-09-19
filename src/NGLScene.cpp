@@ -73,14 +73,14 @@ void NGLScene::initializeGL()
   shader->linkProgramObject("Phong");
   // and make it active ready to load values
   (*shader)["Phong"]->use();
-  shader->setShaderParam1i("Normalize",1);
-  shader->setShaderParam3f("viewerPos",m_cam.getEye().m_x,m_cam.getEye().m_y,m_cam.getEye().m_z);
+  shader->setUniform("Normalize",1);
+  shader->setUniform("viewerPos",m_cam.getEye().toVec3());
   // now pass the modelView and projection values to the shader
   // the shader will use the currently active material and light0 so set them
   ngl::Material m(ngl::STDMAT::POLISHEDSILVER);
   m.loadToShader("material");
   // we need to set a base colour as the material isn't being used for all the params
-  shader->setShaderParam4f("Colour",0.23125f,0.23125f,0.23125f,1);
+  shader->setUniform("Colour",0.23125f,0.23125f,0.23125f,1.0f);
 
   ngl::Light light(ngl::Vec3(2,2,2),ngl::Colour(1,1,1,1),ngl::Colour(1,1,1,1),ngl::LightModes::POINTLIGHT);
   // now create our light this is done after the camera so we can pass the
@@ -127,10 +127,10 @@ void NGLScene::loadMatricesToShader()
   MVP=MV*m_cam.getProjectionMatrix() ;
   normalMatrix=MV;
   normalMatrix.inverse();
-  shader->setShaderParamFromMat4("MV",MV);
-  shader->setShaderParamFromMat4("MVP",MVP);
-  shader->setShaderParamFromMat3("normalMatrix",normalMatrix);
-  shader->setShaderParamFromMat4("M",M);
+  shader->setUniform("MV",MV);
+  shader->setUniform("MVP",MVP);
+  shader->setUniform("normalMatrix",normalMatrix);
+  shader->setUniform("M",M);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -245,7 +245,7 @@ void NGLScene::setColour()
 	{
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
     (*shader)["Phong"]->use();
-    shader->setShaderParam4f("Colour",colour.redF(),colour.greenF(),colour.blueF(),1.0);
+    shader->setUniform("Colour",colour.redF(),colour.greenF(),colour.blueF(),1.0f);
     update();
 	}
 }
