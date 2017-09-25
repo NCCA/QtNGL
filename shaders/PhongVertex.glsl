@@ -16,15 +16,6 @@ in vec3 inNormal;
 in vec2 inUV;
 
 
-struct Materials
-{
-  vec4 ambient;
-  vec4 diffuse;
-  vec4 specular;
-  float shininess;
-};
-
-
 struct Lights
 {
     vec4 position;
@@ -32,15 +23,7 @@ struct Lights
     vec4 ambient;
     vec4 diffuse;
     vec4 specular;
-    float spotCosCutoff;
-    float spotCosInnerCutoff;
-    float spotExponent;
-    float constantAttenuation;
-    float linearAttenuation;
-    float quadraticAttenuation;
 };
-// our material
-uniform Materials material;
 // array of lights
 uniform Lights light;
 // direction of the lights used for shading

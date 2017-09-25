@@ -123,8 +123,8 @@ void NGLScene::loadMatricesToShader()
   ngl::Mat3 normalMatrix;
   ngl::Mat4 M;
   M=m_transform.getMatrix();
-  MV=m_transform.getMatrix()*m_cam.getViewMatrix();
-  MVP=MV*m_cam.getProjectionMatrix() ;
+  MV=m_cam.getViewMatrix()*M;
+  MVP=m_cam.getProjectionMatrix() *MV;
   normalMatrix=MV;
   normalMatrix.inverse();
   shader->setUniform("MV",MV);
