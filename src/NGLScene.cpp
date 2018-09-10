@@ -1,10 +1,8 @@
 #include "NGLScene.h"
 #include <iostream>
 #include <ngl/Vec3.h>
-#include <ngl/Light.h>
 #include <ngl/NGLInit.h>
 #include <ngl/VAOPrimitives.h>
-#include <ngl/Material.h>
 #include <ngl/ShaderLib.h>
 #include <QColorDialog>
 
@@ -28,7 +26,7 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 // This virtual function is called once before the first call to paintGL() or resizeGL(),
 //and then once whenever the widget has been assigned a new QGLContext.
 // This function should set up any required OpenGL context rendering flags, defining display lists, etc.
-
+constexpr auto shaderProgram="PBR";
 //----------------------------------------------------------------------------------------------------------------------
 void NGLScene::initializeGL()
 {
@@ -38,68 +36,53 @@ void NGLScene::initializeGL()
   // enable depth testing for drawing
   glEnable(GL_DEPTH_TEST);
   /// create our camera
-  ngl::Vec3 eye(2,2,2);
+  ngl::Vec3 eye(0.0f,2.0f,2.0f);
   ngl::Vec3 look(0,0,0);
   ngl::Vec3 up(0,1,0);
 
-  m_cam.set(eye,look,up);
-  m_cam.setShape(45,float(1024/720),0.1,300);
+  m_view=ngl::lookAt(eye,look,up);
+  m_project=ngl::perspective(45,float(1024/720),0.1f,300.0f);
   // now to load the shader and set the values
   // grab an instance of shader manager
-  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-  // we are creating a shader called Phong
-  shader->createShaderProgram("Phong");
+  ngl::ShaderLib* shader = ngl::ShaderLib::instance();
+  // we are creating a shader called PBR to save typos
+  // in the code create some constexpr
+  constexpr auto vertexShader  = "PBRVertex";
+  constexpr auto fragShader    = "PBRFragment";
+  // create the shader program
+  shader->createShaderProgram( shaderProgram );
   // now we are going to create empty shaders for Frag and Vert
-  shader->attachShader("PhongVertex",ngl::ShaderType::VERTEX);
-  shader->attachShader("PhongFragment",ngl::ShaderType::FRAGMENT);
+  shader->attachShader( vertexShader, ngl::ShaderType::VERTEX );
+  shader->attachShader( fragShader, ngl::ShaderType::FRAGMENT );
   // attach the source
-  shader->loadShaderSource("PhongVertex","shaders/PhongVertex.glsl");
-  shader->loadShaderSource("PhongFragment","shaders/PhongFragment.glsl");
+  shader->loadShaderSource( vertexShader, "shaders/PBRVertex.glsl" );
+  shader->loadShaderSource( fragShader, "shaders/PBRFragment.glsl" );
   // compile the shaders
-  shader->compileShader("PhongVertex");
-  shader->compileShader("PhongFragment");
+  shader->compileShader( vertexShader );
+  shader->compileShader( fragShader );
   // add them to the program
-  shader->attachShaderToProgram("Phong","PhongVertex");
-  shader->attachShaderToProgram("Phong","PhongFragment");
-  // now bind the shader attributes for most NGL primitives we use the following
-  // layout attribute 0 is the vertex data (x,y,z)
-  shader->bindAttribute("Phong",0,"inVert");
-  // attribute 1 is the UV data u,v (if present)
-  shader->bindAttribute("Phong",1,"inUV");
-  // attribute 2 are the normals x,y,z
-  shader->bindAttribute("Phong",2,"inNormal");
-
-  // now we have associated this data we can link the shader
-  shader->linkProgramObject("Phong");
+  shader->attachShaderToProgram( shaderProgram, vertexShader );
+  shader->attachShaderToProgram( shaderProgram, fragShader );
+  // now we have associated that data we can link the shader
+  shader->linkProgramObject( shaderProgram );
   // and make it active ready to load values
-  (*shader)["Phong"]->use();
-  shader->setUniform("Normalize",1);
-  shader->setUniform("viewerPos",m_cam.getEye().toVec3());
-  // now pass the modelView and projection values to the shader
-  // the shader will use the currently active material and light0 so set them
-  ngl::Material m(ngl::STDMAT::POLISHEDSILVER);
-  m.loadToShader("material");
-  // we need to set a base colour as the material isn't being used for all the params
-  shader->setUniform("Colour",0.23125f,0.23125f,0.23125f,1.0f);
-
-  ngl::Light light(ngl::Vec3(2,2,2),ngl::Colour(1,1,1,1),ngl::Colour(1,1,1,1),ngl::LightModes::POINTLIGHT);
-  // now create our light this is done after the camera so we can pass the
-  // transpose of the projection matrix to the light to do correct eye space
-  // transformations
-  ngl::Mat4 iv=m_cam.getViewMatrix();
-  iv.transpose();
-  light.setTransform(iv);
-  light.setAttenuation(1,0,0);
-  light.enable();
-  // load these values to the shader as well
-  light.loadToShader("light");
-
+  ( *shader )[ shaderProgram ]->use();
+  shader->setUniform( "camPos", eye );
+  // now a light
+  // setup the default shader material and light porerties
+  // these are "uniform" so will retain their values
+  shader->setUniform("lightPosition",0.0, 2.0f, 2.0f );
+  shader->setUniform("lightColor",400.0f,400.0f,400.0f);
+  shader->setUniform("exposure",2.2f);
+  shader->setUniform("albedo",0.950f, 0.71f, 0.29f);
+  shader->setUniform("metallic",1.02f);
+  shader->setUniform("roughness",0.38f);
+  shader->setUniform("ao",0.2f);
   ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
   prim->createSphere("sphere",1.0,40);
   m_text.reset(  new  ngl::Text(QFont("Arial",18)));
   m_text->setScreenSize(this->size().width(),this->size().height());
   m_text->setColour(1.0,1.0,0.0);
-  update();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -107,7 +90,7 @@ void NGLScene::initializeGL()
 // The new size is passed in width and height.
 void NGLScene::resizeGL( int _w, int _h )
 {
-  m_cam.setShape( 45.0f, static_cast<float>( _w ) / _h, 0.05f, 350.0f );
+  m_project=ngl::perspective( 45.0f, static_cast<float>( _w ) / _h, 0.05f, 350.0f );
   m_win.width  = static_cast<int>( _w * devicePixelRatio() );
   m_win.height = static_cast<int>( _h * devicePixelRatio() );
 }
@@ -115,22 +98,22 @@ void NGLScene::resizeGL( int _w, int _h )
 
 void NGLScene::loadMatricesToShader()
 {
-  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-  (*shader)["Phong"]->use();
+  ngl::ShaderLib* shader = ngl::ShaderLib::instance();
+   shader->use("PBR");
+   struct transform
+   {
+     ngl::Mat4 MVP;
+     ngl::Mat4 normalMatrix;
+     ngl::Mat4 M;
+   };
 
-  ngl::Mat4 MV;
-  ngl::Mat4 MVP;
-  ngl::Mat3 normalMatrix;
-  ngl::Mat4 M;
-  M=m_transform.getMatrix();
-  MV=m_cam.getViewMatrix()*M;
-  MVP=m_cam.getProjectionMatrix() *MV;
-  normalMatrix=MV;
-  normalMatrix.inverse();
-  shader->setUniform("MV",MV);
-  shader->setUniform("MVP",MVP);
-  shader->setUniform("normalMatrix",normalMatrix);
-  shader->setUniform("M",M);
+    transform t;
+    t.M=m_transform.getMatrix();
+
+    t.MVP=m_project*m_view*t.M;
+    t.normalMatrix=t.M;
+    t.normalMatrix.inverse().transpose();
+    shader->setUniformBuffer("TransformUBO",sizeof(transform),&t.MVP.m_00);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -149,8 +132,6 @@ void NGLScene::paintGL()
   {
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
   }
-  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-  (*shader)["Phong"]->use();
 
 	m_transform.setPosition(m_position);
 	m_transform.setScale(m_scale);
@@ -244,8 +225,8 @@ void NGLScene::setColour()
 	if( colour.isValid())
 	{
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-    (*shader)["Phong"]->use();
-    shader->setUniform("Colour",colour.redF(),colour.greenF(),colour.blueF(),1.0f);
+    (*shader)[shaderProgram]->use();
+    shader->setUniform("albedo",static_cast<float>(colour.redF()),static_cast<float>(colour.greenF()),static_cast<float>(colour.blueF()));
     update();
 	}
 }
