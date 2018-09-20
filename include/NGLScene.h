@@ -1,14 +1,14 @@
 #ifndef NGLSCENE_H_
 #define NGLSCENE_H_
 
-#include <QEvent>
-#include <QResizeEvent>
-#include <QOpenGLWidget>
 #include <ngl/Transformation.h>
 #include <ngl/Vec3.h>
 #include <ngl/Mat4.h>
 #include <ngl/Text.h>
 #include "WindowParams.h"
+#include <QEvent>
+#include <QResizeEvent>
+#include <QOpenGLWidget>
 #include <memory>
 
 
