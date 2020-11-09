@@ -137,7 +137,7 @@ void NGLScene::paintGL()
 		case 1 : ngl::VAOPrimitives::draw("sphere"); break;
 		case 2 : ngl::VAOPrimitives::draw("cube"); break;
 	}
-	m_text->renderText(10,10,"Qt Gui Demo");
+	m_text->renderText(10,580,"Qt Gui Demo");
 }
 
 
