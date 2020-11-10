@@ -31,8 +31,6 @@ add_executable(${TargetName})
 # Add NGL include path
 include_directories(include $ENV{HOME}/NGL/include)
 
-
-
 target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp  
 			${PROJECT_SOURCE_DIR}/src/NGLScene.cpp  
 			${PROJECT_SOURCE_DIR}/src/MainWindow.cpp  
