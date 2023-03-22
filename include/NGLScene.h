@@ -75,15 +75,15 @@ public :
 	void setColour();
 private :
 	/// @brief m_wireframe mode
-	bool m_wireframe;
+	bool m_wireframe=false;
 	/// @brief rotation data
-  ngl::Vec3 m_rotation;
+  ngl::Vec3 m_rotation={0.0f,0.0f,0.0f};
 	/// @brief scale data
-  ngl::Vec3 m_scale;
+  ngl::Vec3 m_scale={1.0f,1.0f,1.0f};
 	/// @brief position data
-  ngl::Vec3 m_position;
+  ngl::Vec3 m_position={0.0f,0.0f,0.0f};
 	/// @brief our object to draw
-	int m_selectedObject;
+	int m_selectedObject=0;
 	//----------------------------------------------------------------------------------------------------------------------
 	// text for rendering
 	//----------------------------------------------------------------------------------------------------------------------

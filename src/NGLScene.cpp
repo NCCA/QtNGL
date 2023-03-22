@@ -15,12 +15,6 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
   setFocus();
   // re-size the widget to that of the parent (in this case the GLFrame passed in on construction)
   this->resize(_parent->size());
-	m_wireframe=false;
-	m_rotation=0.0;
-	m_scale=1.0;
-	m_position=0.0;
-
-	m_selectedObject=0;
 }
 
 // This virtual function is called once before the first call to paintGL() or resizeGL(),
